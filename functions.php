@@ -3,6 +3,7 @@
 * Add custom fields to menu item
 *
 */
+<?php
 function wp_cf_navMenu($item_id, $item) {
     wp_nonce_field( 'unice_text_field_nonce', '_unice_text_field_nonce_name' );
     $unice_text_field = get_post_meta($item_id, '_unice_text_field', true);
@@ -10,13 +11,13 @@ function wp_cf_navMenu($item_id, $item) {
     <input type="hidden" name="unice_text_field_nonce" value="<?php echo wp_create_nonce( 'custom-text-field-meta-name' ); ?>" />
 	<p class="unice-text_field description description-wide">
 		<label for="unice_text_field-<?php echo $item_id; ?>" >
-		    custom text under the menu <br>
+	    <span class="description"><?php _e( "Custom text under the menu item", 'unice_text_field' ); ?></span>
 	        <input type="hidden" class="nav-menu-id" value="<?php echo $item_id ;?>" />
 			<input type="text" 
 				id="unice_text_field-<?php echo $item_id; ?>"
 				class="widefat"
 				name="unice_text_field[<?php echo $item_id; ?>]" 
-				value="<?php esc_attr($unice_text_field); ?>" 
+				value="<?php echo esc_attr($unice_text_field); ?>" 
 			/>
 		</label>
 	</p>
