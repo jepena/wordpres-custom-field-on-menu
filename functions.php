@@ -4,7 +4,7 @@
 *
 */
 <?php
-function wp_cf_navMenu($item_id, $item) {
+function je_custom_field_menu($item_id, $item) {
     wp_nonce_field( 'unice_text_field_nonce', '_unice_text_field_nonce_name' );
     $unice_text_field = get_post_meta($item_id, '_unice_text_field', true);
 ?>
@@ -23,13 +23,13 @@ function wp_cf_navMenu($item_id, $item) {
 	</p>
 <?php
 }
-add_action( 'wp_nav_menu_item_custom_fields', 'wp_cf_navMenu', 10, 2 );
+add_action( 'wp_nav_menu_item_custom_fields', 'je_custom_field_menu', 10, 2 );
 
 /**
 * Save the menu item meta
 * 
 */
-function custom_nav_update( $menu_id, $menu_item_db_id ) {
+function je_custom_nav_update( $menu_id, $menu_item_db_id ) {
 	// Verify this came from our screen and with proper authorization.
 	if ( ! isset( $_POST['_unice_text_field_nonce_name'] ) || ! wp_verify_nonce( $_POST['_unice_text_field_nonce_name'], 'unice_text_field_nonce' ) ) {
 		return $menu_id;
@@ -43,13 +43,13 @@ function custom_nav_update( $menu_id, $menu_item_db_id ) {
 	}
 	
 }
-add_action( 'wp_update_nav_menu_item', 'custom_nav_update', 10, 2 );
+add_action( 'wp_update_nav_menu_item', 'je_custom_nav_update', 10, 2 );
 
 /**
 * Displays text on the front-end.
 *
 */
-function unice_custom_menu_text_field( $text_field, $item ) {
+function je_custom_menu_text_field( $text_field, $item ) {
 
 	if( is_object( $item ) && isset( $item->ID ) ) {
 
@@ -61,4 +61,34 @@ function unice_custom_menu_text_field( $text_field, $item ) {
 	}
 	return $text_field;
 }
-add_filter( 'walker_nav_menu_start_el', 'unice_custom_menu_text_field', 10, 2 );
+add_filter( 'walker_nav_menu_start_el', 'je_custom_menu_text_field', 10, 2 );
+
+/**
+* Displays text on the front-end after the menu title .
+*
+*/
+function je_custom_text($item) {
+    //Use the following to conduct logic;
+    $object_id = (int) $item->object_id; //object ID.
+    $object_type = $item->type; //E.g. 'post_type'
+    $object_type_label = $item->type_label; //E.g. 'post' or 'page';
+
+    //You could, optionally add classes to the menu item.
+    $item_class = $item->classes;
+
+    //Make sure $item_class is an array.
+    //Alter the class:
+    $item->classes = $item_class;
+
+    //Alter the title:
+    $custom_menu_meta = get_post_meta( $item->ID, '_unice_text_field', true );
+    if( is_object( $item ) && isset( $item->ID ) ) {
+        
+        if(! empty( $custom_menu_meta) ){
+            $item->title = $item->title.'<br><span>' . $custom_menu_meta . '</span>'; 
+        }
+    }
+
+    return $item;
+}
+add_filter( 'wp_setup_nav_menu_item','je_custom_text', 10, 2 );
